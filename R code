@@ -1,0 +1,94 @@
+* Times Series plot
+
+awv<- Airport_and_weather_visual summary(awv)
+library(ggplot2)
+ggplot(awv，aes(x = month,y = arr_delay))+ geom_1ine() +
+1abs(title = "Monthly Arrival Delay Time series",y = "Arrival Delay")
+
+* Predictive modeling
+
+library(dp1yr)
+set.seed(123)
+train_data <- awv[1:round(0.8 *nrow(awv))，]
+test_data <- awv[(round(0.8 *nrow(awv)) + 1):nrow(awv)，]
+mode1 <- 1m(arr_delay ~ carrier + arr_flights + airport,data = train_data) predictions <- predict(model,newdata = test_data)
+new_delay <- data.frame(arr_flights = 3995,carrier = "AA"， airport ="MIA")
+future_prediction <- predict(model，newdata = new_delay) cat("Predicted future delay:",future_prediction,"\n")
+
+* Correlation 
+
+passenger_vars <- data[c("dom_passengers", "intl_passengers", "total_passengers")]
+delay_vars <- data[c("arr_delay", "carrier_delay", "weather_delay", "nas_delay", "security_delay", "late_aircraft_delay")]
+correlations <- cor(passenger_vars, delay_vars)
+print(correlations)
+
+* Linear regression for PASSENGERS dataset 
+
+data <- read.csv("C:/dong/oharepassengers.csv")
+X <- data[, c("dom_passengers", "intl_passengers")]
+y <- data$arr_delay
+model <- lm(y ~ X, data = data)
+summary(model)
+
+* Testing multicollinearity 
+
+library(car)
+vif_values <- vif(model)
+print(vif_values)
+
+* Mutiple linear regression for FUEL EXPEND dataset 
+
+data <- read.csv("C:/dong/fuelexpend.csv")
+model <- lm(arr_delay ~ dom_consumption + dom_cost + dom_cpg + 
+              int_consumption + int_cost + int_cpg, data = data)
+summary(model) 
+
+* Ramdom Forest 
+
+library(randomForest)
+
+set.seed(123) 
+rf_model <- randomForest(arr_delay ~ dom_consumption + dom_cost + dom_cpg + 
+                           int_consumption + int_cost + int_cpg, 
+                         data = data, 
+                         importance = TRUE)
+print(rf_model)
+
+*Ridge or Lasso regression 
+
+sapply(x,class)  *Classify the variable type 
+data$int_cpg <- as.numeric(as.character(data$int_cpg))
+data$int_cpg[is.na(data$int_cpg)] <- mean(data$int_cpg, na.rm = TRUE)  *Changing characteric variable to numeric
+
+-	data <- read.csv("C:/dong/fuelexpend.csv")
+data <- na.omit(data)
+library(glmnet)
+x <- as.matrix(data[, c("dom_consumption", "dom_cost", "dom_cpg", "int_consumption", "int_cost", "int_cpg")])
+y <- data$arr_delay
+x <- scale(x)
+y <- scale(y)
+
+set.seed(123) 
+ridge_model <- glmnet(x, y, alpha = 0)
+set.seed(123) 
+lasso_model <- glmnet(x, y, alpha = 1)
+
+*For Ridge regression
+cv_ridge <- cv.glmnet(x, y, alpha = 0)
+best_lambda_ridge <- cv_ridge$lambda.min
+coef(ridge_model, s = best_lambda_ridge)
+
+*For Lasso regression 
+cv_lasso <- cv.glmnet(x, y, alpha = 1)
+best_lambda_lasso <- cv_lasso$lambda.min
+coef (lasso_model, s = best_lambda_lasso) 
+
+*Calculate the MSE 
+ridge_mse <- mean((y - ridge_predictions)^2)
+lasso_mse <- mean((y - lasso_predictions)^2)
+
+*Print the result 
+print(paste("Ridge Regression MSE:", ridge_mse))
+print(paste("Lasso Regression MSE:", lasso_mse))
+
+
